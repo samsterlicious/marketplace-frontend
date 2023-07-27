@@ -1,0 +1,26 @@
+<ng-container *ngIf="auth$ | async as user">
+  <ng-container *ngIf="espnSports$ | async as sports">
+    <p class="mt-1"></p>
+    <p-accordion *ngIf="sports.length > 0">
+      <p-accordionTab [header]="sport.name" *ngFor="let sport of sports">
+        <div class="flex flex-column">
+          <div
+            class="flex flex-column flex-1 justify-content-center"
+            *ngFor="let league of sport.leagues"
+          >
+            <div class="flex-1 text-center">
+              {{ league.name }}
+            </div>
+            <div *ngFor="let event of league.events">
+              <div>{{ event.name }}</div>
+              <div>
+                {{ event.competitors[0].name }} @
+                {{ event.competitors[1].name }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-accordionTab>
+    </p-accordion>
+  </ng-container>
+</ng-container>

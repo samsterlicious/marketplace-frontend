@@ -1,0 +1,24 @@
+<p-menubar styleClass="menubar">
+  <ng-template pTemplate="start">
+    <button
+      pButton
+      pRipple
+      label="Marketplace"
+      type="button"
+      icon="pi pi-desktop"
+      class="p-button-rounded p-button-text"
+      routerLink="/home"
+    ></button>
+  </ng-template>
+  <ng-template pTemplate="end">
+    <button
+      type="button"
+      pButton
+      icon="pi pi-user"
+      label="&#x25BC;"
+      (click)="menu.toggle($event)"
+    ></button>
+    <p-menu #menu [popup]="true" [model]="userItems"></p-menu>
+  </ng-template>
+</p-menubar>
+<router-outlet></router-outlet>
