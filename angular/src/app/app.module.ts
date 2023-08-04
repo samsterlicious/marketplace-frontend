@@ -10,6 +10,7 @@ import { HomeComponent } from './components/home/home.component';
 import { ToolbarComponent } from './components/misc/toolbar/toolbar.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { PrimengModule } from './modules/primeng';
+import { EventComponent } from './components/event/event.component';
 
 const AUTH_IGNORED_PATHS = ['/home'];
 
@@ -19,6 +20,7 @@ const AUTH_IGNORED_PATHS = ['/home'];
     ToolbarComponent,
     ProfileComponent,
     HomeComponent,
+    EventComponent,
   ],
   imports: [
     AuthModule.forRoot({

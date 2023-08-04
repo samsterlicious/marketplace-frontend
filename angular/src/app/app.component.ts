@@ -3,6 +3,7 @@ import { AuthService } from '@auth0/auth0-angular';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { SpinnerService } from './services/spinner/spinner.service';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +25,7 @@ export class AppComponent implements OnInit {
     },
   ];
 
-  constructor(private auth: AuthService) {
+  constructor(private auth: AuthService, public spinner: SpinnerService) {
     this.authSub = this.auth.user$.subscribe({
       next: (user) => {
         if (!user) {

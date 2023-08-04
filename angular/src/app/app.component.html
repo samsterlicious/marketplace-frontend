@@ -21,4 +21,7 @@
     <p-menu #menu [popup]="true" [model]="userItems"></p-menu>
   </ng-template>
 </p-menubar>
+<div class="spinner" *ngIf="spinner.isSpinning$ | async">
+  <p-progressSpinner></p-progressSpinner>
+</div>
 <router-outlet></router-outlet>

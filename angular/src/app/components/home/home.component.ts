@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
 import { AuthService, User } from '@auth0/auth0-angular';
-import { Observable } from 'rxjs';
-import { EspnService, EspnSport } from 'src/app/services/espn/espn.service';
+import { Observable, tap } from 'rxjs';
+import {
+  MarketplaceMap,
+  MarketplaceService,
+} from 'src/app/services/marketplace/marketplace.service';
+import { SpinnerService } from 'src/app/services/spinner/spinner.service';
 
 @Component({
   selector: 'app-home',
@@ -10,9 +14,16 @@ import { EspnService, EspnSport } from 'src/app/services/espn/espn.service';
 })
 export class HomeComponent {
   auth$: Observable<User | null | undefined>;
-  espnSports$: Observable<EspnSport[]>;
-  constructor(auth: AuthService, espn: EspnService) {
+  marketplaceMap$: Observable<MarketplaceMap | undefined>;
+  constructor(
+    auth: AuthService,
+    marketplaceService: MarketplaceService,
+    spinner: SpinnerService
+  ) {
     this.auth$ = auth.user$;
-    this.espnSports$ = espn.loadSports();
+    spinner.turnOn();
+    this.marketplaceMap$ = marketplaceService
+      .get()
+      .pipe(tap(() => spinner.turnOff()));
   }
 }
