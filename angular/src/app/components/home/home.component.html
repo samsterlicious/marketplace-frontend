@@ -1,25 +1,55 @@
-<ng-container *ngIf="auth$ | async as user">
-  <ng-container *ngIf="marketplaceMap$ | async as marketplaceEvents">
+<p-toast></p-toast>
+<ng-container *ngIf="cart$ | async as cart">
+  <ng-container *ngIf="view$ | async as view">
     <p class="mt-1"></p>
-    <p-accordion *ngIf="marketplaceEvents">
+    <p-accordion
+      *ngIf="view.marketplaceMap"
+      [multiple]="true"
+      [activeIndex]="[0]"
+    >
       <p-accordionTab
-        [header]="sport.key"
-        *ngFor="let sport of marketplaceEvents | keyvalue"
+        [header]="kind.key"
+        *ngFor="let kind of view.marketplaceMap | keyvalue"
       >
         <div class="flex flex-column">
-          <div
-            class="flex flex-column flex-1 justify-content-center"
-            *ngFor="let league of sport.value | keyvalue"
-          >
-            <div class="flex-1 text-center">
-              {{ league.key }}
-            </div>
-            <div *ngFor="let event of league.value" class="flex-1 flex-column">
-              <app-event [event]="event"></app-event>
-            </div>
+          <div class="flex flex-column flex-1 justify-content-center">
+            <ng-container *ngFor="let event of kind.value">
+              <app-event
+                [event]="event"
+                class="flex-1 flex flex-row"
+                [awaySelected]="!!cart[getCartKey(event, 'away')]"
+                [homeSelected]="!!cart[getCartKey(event, 'home')]"
+                [bid]="
+                  getBid(
+                    view.myBids,
+                    kind.key,
+                    event.date,
+                    event.awayTeam,
+                    event.homeTeam
+                  )
+                "
+              ></app-event>
+            </ng-container>
           </div>
         </div>
       </p-accordionTab>
     </p-accordion>
+    <p-button
+      class="bottom-0 left-100 sticky p-1"
+      pRipple
+      iconPos="right"
+      styleClass="p-button-lg p-button-rounded  p-button-raised "
+      icon="pi pi-shopping-cart"
+      label="Cart"
+      (click)="toggleCart(false)"
+    ></p-button>
+
+    <app-cart
+      (hideEmitter)="toggleCart($event)"
+      *ngIf="showCart$ | async as show"
+      [show]="show"
+      [cart]="cart"
+      (reload)="reloadPage($event)"
+    ></app-cart>
   </ng-container>
 </ng-container>

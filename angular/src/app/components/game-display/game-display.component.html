@@ -1,0 +1,19 @@
+<div class="flex flex-row justify-content-center mt-2">
+  <div class="flex flex-column">
+    <div>Event: {{ awayTeam }} @ {{ homeTeam }}</div>
+    <div>Date: {{ date }}</div>
+    <div>Team: {{ chosenCompetitor }}</div>
+    <div>Spread: {{ spread }}</div>
+    <div class="flex flex-column gap-2">
+      <label htmlFor="amount">Amount</label>
+      <p-inputNumber
+        mode="decimal"
+        id="amount"
+        aria-describedby="amount-help"
+        [(ngModel)]="amount"
+      />
+    </div>
+    <p-button label="Place" (onClick)="click()"></p-button>
+  </div>
+</div>
+<p-toast></p-toast>

@@ -1,0 +1,31 @@
+<div class="flex flex-1 flex-column event mt-2 text-xs">
+  <div class="text-center">
+    {{ bet.date | date : "short" }}
+  </div>
+  <div class="text-center">
+    {{ bet.spread }}
+  </div>
+  <div class="text-center">
+    {{ bet.amount }}
+  </div>
+  <div class="flex-1 flex flex-row">
+    <div class="md:hidden flex flex-column p-3 m-1 flex-1">
+      <div class="flex-1 flex flex-column"></div>
+      <div class="flex flex-row justify-content-center">
+        <img class="nameLogo" [src]="getLogo(bet.awayTeam)" />
+      </div>
+      <div class="text-center">
+        {{ bet.awayUser }}
+      </div>
+    </div>
+    <div class="md:hidden flex flex-column p-3 m-1 flex-1">
+      <div class="flex-1 flex flex-column"></div>
+      <div class="flex flex-row justify-content-center">
+        <img class="nameLogo" [src]="getLogo(bet.homeTeam)" />
+      </div>
+      <div class="text-center">
+        {{ bet.homeUser }}
+      </div>
+    </div>
+  </div>
+</div>

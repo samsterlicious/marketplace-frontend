@@ -1,14 +1,56 @@
-<div class="grid">
-  <div class="col-6 col-offset-3 flex flex-row">
-    <div class="flex-1">
-      <img [src]="event.awayLogo" width="50" height="50" />{{
-        event.awayCompetitor
-      }}
+<div class="mb-2 mt-2 flex-1">
+  <div class="event relative flex flex-column">
+    <p-button
+      class="right-0 absolute"
+      styleClass="p-button-rounded p-button-text"
+      icon="pi pi-question-circle"
+      (click)="toggleInfo()"
+    ></p-button>
+    <div class="flex-1 text-center">
+      {{ event.awayTeam }} @ {{ event.homeTeam }}
     </div>
-    <div class="flex-1">
-      <img [src]="event.homeLogo" width="50" height="50" />{{
-        event.homeCompetitor
-      }}
+    <div class="flex-1 text-center">
+      {{ event.date | date : "short" }}
+    </div>
+    <div class="flex-1 text-center">Spread: {{ event.spread }}</div>
+    <div class="flex flex-1 flex-row">
+      <app-competitor
+        [team]="event.awayTeam"
+        [amount]="event.awayAmount"
+        [isHome]="false"
+        [spread]="event.spread"
+        [awayTeam]="event.awayTeam"
+        [homeTeam]="event.homeTeam"
+        [kind]="event.kind"
+        [date]="event.date"
+        class="flex-1"
+        [myAmount]="getMyAmount(event.awayTeam)"
+        [selectDisabled]="getMyAmount(event.homeTeam) > 0"
+        [selected]="awaySelected"
+      >
+      </app-competitor>
+      <app-competitor
+        [team]="event.homeTeam"
+        [amount]="event.homeAmount"
+        class="flex-1"
+        [awayTeam]="event.awayTeam"
+        [homeTeam]="event.homeTeam"
+        [spread]="event.spread"
+        [kind]="event.kind"
+        [date]="event.date"
+        [myAmount]="getMyAmount(event.homeTeam)"
+        [selectDisabled]="getMyAmount(event.awayTeam) > 0"
+        [selected]="homeSelected"
+      >
+      </app-competitor>
     </div>
   </div>
 </div>
+<app-event-info
+  *ngIf="info$ | async as info"
+  [kind]="event.kind"
+  [date]="event.date"
+  [awayTeam]="event.awayTeam"
+  [homeTeam]="event.homeTeam"
+  (hideEvent)="toggle($event)"
+></app-event-info>

@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root',
 })
 export class SpinnerService {
-  private readonly spinnerSubject = new BehaviorSubject<boolean>(false);
+  private readonly spinnerSubject = new BehaviorSubject<boolean>(true);
   isSpinning$ = this.spinnerSubject.asObservable();
 
   turnOn(): void {

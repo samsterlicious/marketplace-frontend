@@ -1,0 +1,21 @@
+<p-dialog header="Info" [(visible)]="visible" (onHide)="onHide($event)">
+  <div *ngIf="bids$ | async as bids">
+    <ng-container *ngIf="bids.length > 0; else noBids">
+      <div class="flex flex-row">
+        <div>User</div>
+        <div>Amount</div>
+        <div>Date</div>
+      </div>
+      <div *ngFor="let bid of bids" class="flex flex-row">
+        <div>{{ bid.user }}</div>
+        <div>{{ bid.amount }}</div>
+        <div>{{ bid.createDate }}</div>
+      </div>
+    </ng-container>
+    <ng-template #noBids>
+      <div class="flex flex-row">
+        <div class="flex-1">No history</div>
+      </div>
+    </ng-template>
+  </div>
+</p-dialog>

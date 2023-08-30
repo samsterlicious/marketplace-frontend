@@ -11,3 +11,27 @@
   width: 100%;
   z-index: 1001;
 }
+
+.selected {
+  background-color: #66cdaa !important;
+  border-color: green !important;
+}
+
+.competitor {
+  border-radius: 25px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #a1a1a1;
+  background-color: #f8f8f8;
+}
+
+.nameLogo {
+  width: 50px;
+}
+
+.event {
+  border-radius: 25px;
+  border-width: 2px;
+  border-color: black;
+  border-style: solid;
+}

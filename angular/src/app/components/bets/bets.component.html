@@ -1,0 +1,12 @@
+<p-tabView *ngIf="view$ | async as view" header="Todays Bets">
+  <p-tabPanel header="Recent Bets">
+    <ng-container *ngFor="let bet of view.recentBets">
+      <app-bet [bet]="bet"> </app-bet>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel header="My Bets">
+    <ng-container *ngFor="let bet of view.myBets">
+      <app-bet [bet]="bet"> </app-bet>
+    </ng-container>
+  </p-tabPanel>
+</p-tabView>

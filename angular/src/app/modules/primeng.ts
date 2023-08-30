@@ -6,7 +6,9 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ChipModule } from 'primeng/chip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
@@ -25,9 +27,11 @@ const primeNgModules = [
   AccordionModule,
   BreadcrumbModule,
   ButtonModule,
+  DynamicDialogModule,
   CardModule,
   ConfirmDialogModule,
   ChipModule,
+  DialogModule,
   DropdownModule,
   InputNumberModule,
   InputTextModule,

@@ -1,0 +1,18 @@
+<div
+  class="md:hidden flex flex-column competitor p-3 m-1"
+  (click)="select()"
+  [class.selected]="selected"
+  [class.selectDisabled]="selectDisabled"
+>
+  <div class="flex-1 flex flex-column">
+    <div class="flex-1 text-right">Total: {{ amount }}</div>
+    <div class="flex-1 text-right">Your Amount: {{ myAmount }}</div>
+  </div>
+  <div class="flex flex-row justify-content-center">
+    <img
+      class="nameLogo"
+      [src]="isHome ? getLogo(homeTeam) : getLogo(awayTeam)"
+    />
+  </div>
+</div>
+<p-confirmDialog></p-confirmDialog>

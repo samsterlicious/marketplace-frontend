@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { AuthService } from '@auth0/auth0-angular';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
@@ -9,6 +9,7 @@ import { SpinnerService } from './services/spinner/spinner.service';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
   authSub: Subscription;
