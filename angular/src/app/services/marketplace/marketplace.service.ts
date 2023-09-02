@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subject, mergeMap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -10,6 +10,21 @@ export class MarketplaceService {
   baseUrl = `${environment.api.url}/marketplace`;
 
   constructor(private httpClient: HttpClient) {}
+
+  private eventSubject = new Subject<string>();
+  eventInfo$ = this.eventSubject.asObservable().pipe(
+    mergeMap((id) =>
+      this.httpClient.get(`${environment.api.url}/espn-info`, {
+        params: {
+          eventId: id,
+        },
+      })
+    )
+  );
+
+  getEventInfo(id: string) {
+    this.eventSubject.next(id);
+  }
 
   get(): Observable<MarketplaceEvent[]> {
     return this.httpClient.get<MarketplaceEvent[]>(this.baseUrl);

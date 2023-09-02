@@ -1,4 +1,4 @@
-<p-menubar styleClass="menubar">
+<p-menubar [model]="items" styleClass="menubar">
   <ng-template pTemplate="start">
     <button
       pButton
@@ -9,14 +9,14 @@
       class="p-button-rounded p-button-text"
       routerLink="/home"
     ></button>
-    <button
+    <!-- <button
       pButton
       pRipple
       label="Bets"
       type="button"
       class="p-button-rounded p-button-text"
       routerLink="/bets"
-    ></button>
+    ></button> -->
   </ng-template>
   <ng-template pTemplate="end">
     <button
@@ -32,4 +32,6 @@
 <div class="spinner" *ngIf="spinner.isSpinning$ | async">
   <p-progressSpinner styleClass="w-screen h-screen"></p-progressSpinner>
 </div>
-<router-outlet></router-outlet>
+<ng-container *ngIf="betUser$ | async">
+  <router-outlet></router-outlet>
+</ng-container>

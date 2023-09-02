@@ -19,6 +19,9 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { IdentityTokenInterceptor } from './interceptors/identityToken';
 import { PrimengModule } from './modules/primeng';
 import { BetComponent } from './components/bet/bet.component';
+import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
+import { MyHistoryComponent } from './components/my-history/my-history.component';
+import { EspnInfoComponent } from './components/dialogs/espn-info/espn-info.component';
 
 const AUTH_IGNORED_PATHS = ['/home'];
 
@@ -35,6 +38,9 @@ const AUTH_IGNORED_PATHS = ['/home'];
     EventInfoComponent,
     CartComponent,
     BetComponent,
+    LeaderboardComponent,
+    MyHistoryComponent,
+    EspnInfoComponent,
   ],
   imports: [
     AuthModule.forRoot({
