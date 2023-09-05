@@ -57,4 +57,9 @@ export type MarketplaceEvent = {
   spread: string;
   homeAmount: number;
   awayAmount: number;
+  homeRecord: string;
+  awayRecord: string;
+  awayAbbreviation: string;
+  homeAbbreviation: string;
+  id: string;
 };

@@ -8,7 +8,8 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "keith": "cd angular; npx ng build; cd ..; npx cdk deploy -c config=dev"
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",

@@ -8,11 +8,17 @@
       [activeIndex]="[0]"
     >
       <p-accordionTab
+        class="text-sm md:text-base"
         [header]="kind.key"
         *ngFor="let kind of view.marketplaceMap | keyvalue"
+        [contentStyle]="{
+          padding: '0px',
+          display: 'flex',
+          justifyContent: 'center'
+        }"
       >
-        <div class="flex flex-column">
-          <div class="flex flex-column flex-1 justify-content-center">
+        <div class="flex flex-column md:w-9 lg:w-6">
+          <div class="flex flex-column flex-1 justify-content-center greg">
             <ng-container *ngFor="let event of kind.value">
               <app-event
                 [event]="event"

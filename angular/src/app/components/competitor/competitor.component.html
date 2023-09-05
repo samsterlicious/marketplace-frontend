@@ -1,18 +1,47 @@
 <div
-  class="md:hidden flex flex-column competitor p-3 m-1"
+  class="md:hidden flex flex-row competitor p-3 m-1"
   (click)="select()"
   [class.selected]="selected"
   [class.selectDisabled]="selectDisabled"
+  *ngIf="team"
 >
-  <div class="flex-1 flex flex-column">
-    <div class="flex-1 text-right">Total: {{ amount }}</div>
-    <div class="flex-1 text-right">Your Amount: {{ myAmount }}</div>
+  <div>
+    <img class="nameLogo" [src]="getLogo(team.name)" />
   </div>
-  <div class="flex flex-row justify-content-center">
-    <img
-      class="nameLogo"
-      [src]="isHome ? getLogo(homeTeam) : getLogo(awayTeam)"
-    />
+  <div class="flex flex-1 flex-column ml-2">
+    <div class="font-bold">
+      {{ team.abbreviatedName }}
+    </div>
+    <div>({{ team.record }})</div>
+    <div>
+      {{ team.name == event.awayTeam ? "Away" : "Home" }}
+    </div>
+  </div>
+  <div class="flex flex-column font-bold justify-content-center">
+    <div class="text-right">{{ getPoints() }}</div>
+  </div>
+</div>
+<div
+  class="hidden md:flex flex-row competitor p-3 m-1"
+  (click)="select()"
+  [class.selected]="selected"
+  [class.selectDisabled]="selectDisabled"
+  *ngIf="team"
+>
+  <div>
+    <img class="nameLogo" [src]="getLogo(team.name)" />
+  </div>
+  <div class="flex flex-1 flex-column ml-2">
+    <div class="flex flex-row">
+      <div class="font-bold">{{ team.name }}</div>
+      <div>({{ team.record }})</div>
+    </div>
+    <div>
+      {{ team.name == event.awayTeam ? "Away" : "Home" }}
+    </div>
+  </div>
+  <div class="flex flex-column font-bold justify-content-center">
+    <div class="text-right">{{ getPoints() }}</div>
   </div>
 </div>
 <p-confirmDialog></p-confirmDialog>
