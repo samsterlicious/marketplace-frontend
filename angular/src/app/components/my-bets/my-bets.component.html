@@ -1,0 +1,78 @@
+<div class="flex flex-row justify-content-center text-xs md:text-base">
+  <div
+    *ngIf="userService.getBetUser$ | async"
+    class="flex flex-row md:w-8 lg:w-4"
+  >
+    <p-tabView>
+      <p-tabPanel header="My Bets">
+        <ng-container *ngIf="userService.leagueUsers$ | async as leagueUsers">
+          <div *ngIf="bets$ | async as bets" class="flex-1 flex flex-column">
+            <div class="d flex-1 flex flex-row" *ngFor="let bet of bets">
+              <app-competitor
+                class="flex-1"
+                [bet]="bet"
+                [isFavorite]="true"
+                [leagueUsers]="leagueUsers"
+                (reload)="reloadPage($event)"
+              >
+              </app-competitor>
+              <div class="flex flex-column justify-content-center">
+                {{ bet.amount }}
+              </div>
+              <app-competitor
+                class="flex-1"
+                [bet]="bet"
+                [leagueUsers]="leagueUsers"
+                (reload)="reloadPage($event)"
+              >
+              </app-competitor>
+            </div>
+          </div>
+        </ng-container>
+      </p-tabPanel>
+      <p-tabPanel header="All Bets">
+        <div class="flex flex-row justify-content-center">
+          <div class="flex flex-row md:w-8 lg:w-4">
+            <ng-container
+              *ngIf="userService.leagueUsers$ | async as leagueUsers"
+            >
+              <div class="flex-1 flex flex-column b">
+                <div class="mt-2 flex flex-row justify-content-center">
+                  <p-dropdown
+                    [options]="weeks"
+                    [ngModel]="selectedWeek"
+                    (onChange)="changeSelectedWeek($event)"
+                    optionLabel="name"
+                  ></p-dropdown>
+                </div>
+                <div
+                  *ngIf="betsByWeek$ | async as bets"
+                  class="flex flex-row justify-content-center"
+                >
+                  <div class="d flex-1 flex flex-row" *ngFor="let bet of bets">
+                    <app-competitor
+                      class="flex-1"
+                      [bet]="bet"
+                      [isFavorite]="true"
+                      [leagueUsers]="leagueUsers"
+                    >
+                    </app-competitor>
+                    <div class="flex flex-column justify-content-center">
+                      {{ bet.amount }}
+                    </div>
+                    <app-competitor
+                      class="flex-1"
+                      [bet]="bet"
+                      [leagueUsers]="leagueUsers"
+                    >
+                    </app-competitor>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</div>
