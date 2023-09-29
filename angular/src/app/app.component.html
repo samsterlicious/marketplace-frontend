@@ -9,14 +9,6 @@
       class="p-button-rounded p-button-text"
       routerLink="/home"
     ></button>
-    <!-- <button
-      pButton
-      pRipple
-      label="Bets"
-      type="button"
-      class="p-button-rounded p-button-text"
-      routerLink="/bets"
-    ></button> -->
   </ng-template>
   <ng-template pTemplate="end">
     <button
@@ -32,6 +24,5 @@
 <div class="spinner" *ngIf="spinner.isSpinning$ | async">
   <p-progressSpinner styleClass="w-screen h-screen"></p-progressSpinner>
 </div>
-<ng-container *ngIf="betUser$ | async">
-  <router-outlet></router-outlet>
-</ng-container>
+
+<router-outlet></router-outlet>

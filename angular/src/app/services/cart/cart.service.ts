@@ -13,21 +13,36 @@ export class CartService {
         return {};
       }
       const cart = this.cartSubject.getValue();
-      const { chosenTeam, event } = item;
+      const { chosenTeam, event, amount, amountChange } = item;
       if (event && chosenTeam) {
-        if (cart[CartService.getKeyFromEvent(event, chosenTeam)]) {
-          delete cart[CartService.getKeyFromEvent(event, chosenTeam)];
+        const existingCartItem = cart[CartService.getKeyFromEvent(event)];
+        if (existingCartItem) {
+          if (amountChange) {
+            existingCartItem.amount = amount;
+            return cart;
+          }
+          if (existingCartItem.chosenTeam === chosenTeam) {
+            delete cart[CartService.getKeyFromEvent(event)];
+          } else {
+            cart[CartService.getKeyFromEvent(event)] = {
+              event,
+              chosenTeam,
+              amount: 0,
+            };
+          }
         } else {
-          delete cart[CartService.getKeyFromEvent(event, event.homeTeam)];
-          delete cart[CartService.getKeyFromEvent(event, event.awayTeam)];
-          cart[CartService.getKeyFromEvent(event, chosenTeam)] = event;
+          cart[CartService.getKeyFromEvent(event)] = {
+            event,
+            chosenTeam,
+            amount: 0,
+          };
         }
       }
       return cart;
     })
   );
 
-  cartSubject = new BehaviorSubject<{ [key: string]: MarketplaceEvent }>({});
+  cartSubject = new BehaviorSubject<Cart>({});
 
   constructor() {}
 
@@ -39,16 +54,26 @@ export class CartService {
     this.cartItemSubject.next(undefined);
   }
 
-  static getKeyFromEvent(event: MarketplaceEvent, chosenTeam?: string): string {
+  getKeyFromEvent(event: MarketplaceEvent): string {
     return `${event.kind}|${new Date(event.date)
       .toISOString()
-      .replace(/\.\d{3}Z$/, 'Z')}|${event.awayTeam}|${event.homeTeam}${
-      chosenTeam ? '|' + chosenTeam : ''
-    }`;
+      .replace(/\.\d{3}Z$/, 'Z')}|${event.awayTeam}|${event.homeTeam}`;
+  }
+
+  static getKeyFromEvent(event: MarketplaceEvent): string {
+    return `${event.kind}|${new Date(event.date)
+      .toISOString()
+      .replace(/\.\d{3}Z$/, 'Z')}|${event.awayTeam}|${event.homeTeam}`;
   }
 }
 
-type CartItem = {
+export type Cart = {
+  [key: string]: CartItem;
+};
+
+export type CartItem = {
   event?: MarketplaceEvent;
   chosenTeam?: string;
+  amount?: number;
+  amountChange?: boolean;
 };

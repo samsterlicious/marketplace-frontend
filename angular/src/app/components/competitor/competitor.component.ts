@@ -1,9 +1,15 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
-import { CartService } from 'src/app/services/cart/cart.service';
+import { Subject, mergeMap, tap } from 'rxjs';
+import { Bet } from 'src/app/services/bet/bet.service';
+import { Bid, BidService } from 'src/app/services/bid/bid.service';
+import { CartItem, CartService } from 'src/app/services/cart/cart.service';
 import { MarketplaceEvent } from 'src/app/services/marketplace/marketplace.service';
+import { SpinnerService } from 'src/app/services/spinner/spinner.service';
+import { LeagueUser } from 'src/app/services/user/user.service';
 import { logos } from 'src/app/util/logos';
+import { EventComponent, Team } from '../event/event.component';
 
 @Component({
   selector: 'app-competitor',
@@ -12,88 +18,88 @@ import { logos } from 'src/app/util/logos';
   providers: [ConfirmationService],
 })
 export class CompetitorComponent implements OnInit {
-  @Input() event!: MarketplaceEvent;
+  @Input() event?: MarketplaceEvent;
   @Input() isFavorite = false;
 
-  @Input() selectDisabled = false;
-  @Input() selected = false;
+  @Input() cartItem?: CartItem;
+  @Input() bet?: Bet;
 
+  @Input() leagueUsers?: { [key: string]: LeagueUser };
   amount = 0;
   team?: Team;
 
-  constructor(private cartService: CartService, private router: Router) {}
+  @Output() reload = new EventEmitter<boolean>();
+
+  editFlag = false;
+  updateAmount = 0;
+  updateBidSubject = new Subject<Bid>();
+  save$ = this.updateBidSubject.asObservable().pipe(
+    mergeMap((bid) => this.bidService.update(bid)),
+    tap(() => {
+      this.reload.emit(true);
+    })
+  );
+
+  cartAmounts: { [key: string]: number } = {};
+
+  constructor(
+    private cartService: CartService,
+    private router: Router,
+    private bidService: BidService,
+    private spinner: SpinnerService
+  ) {}
   ngOnInit(): void {
-    this.team = this.getTeam();
+    this.team = EventComponent.getTeam(this.isFavorite, {
+      event: this.event,
+      bet: this.bet,
+    });
   }
 
   select() {
-    if (this.selectDisabled) {
-      return;
+    if (this.event) {
+      this.cartService.addCartItem({
+        chosenTeam: this.team!.name,
+        event: {
+          awayTeam: this.event.awayTeam,
+          homeTeam: this.event.homeTeam,
+          spread: this.event.spread,
+          date: this.event.date,
+          kind: this.event.kind,
+          awayAmount: 0,
+          homeAmount: 0,
+          week: this.event.week,
+          awayAbbreviation: this.event.awayAbbreviation,
+          homeAbbreviation: this.event.homeAbbreviation,
+        },
+      });
     }
-    // this.cartService.addCartItem({
-    //   chosenTeam: this.team,
-    //   event: {
-    //     awayTeam: this.awayTeam,
-    //     homeTeam: this.homeTeam,
-    //     spread: this.spread,
-    //     date: this.date,
-    //     kind: this.kind,
-    //     awayAmount: 0,
-    //     homeAmount: 0,
-    //   },
-    // });
   }
 
   getLogo(team: string) {
     return logos[team];
   }
 
-  getTeam(): Team | undefined {
-    console.log('dsfsd', this.event);
-    const event = this.event;
-    const regex = /^(\S+)\s+(\S+).*/i;
-    const match = event.spread.match(regex);
-    //away is favorited team
-    if (!match) return;
+  handleBetChange(event: number) {
+    this.cartService.addCartItem({
+      ...this.cartItem,
+      amountChange: true,
+      amount: event,
+    });
+  }
 
-    if (match[1] === event.awayAbbreviation) {
-      if (this.isFavorite) {
-        //i'm a favorite
-        return {
-          abbreviatedName: event.awayAbbreviation,
-          name: event.awayTeam,
-          totalAmount: event.awayAmount,
-          record: event.awayRecord,
-          points: parseFloat(match[2]),
-        };
-      } else {
-        return {
-          abbreviatedName: event.homeAbbreviation,
-          name: event.homeTeam,
-          totalAmount: event.homeAmount,
-          record: event.homeRecord,
-          points: parseFloat(match[2]),
-        };
-      }
-    }
-    // home is favorite
-    if (this.isFavorite) {
-      return {
-        abbreviatedName: event.homeAbbreviation,
-        name: event.homeTeam,
-        totalAmount: event.homeAmount,
-        record: event.homeRecord,
-        points: parseFloat(match[2]),
-      };
-    } else {
-      return {
-        abbreviatedName: event.awayAbbreviation,
-        name: event.awayTeam,
-        totalAmount: event.awayAmount,
-        record: event.awayRecord,
-        points: parseFloat(match[2]),
-      };
-    }
+  deleteBid() {
+    const bet = this.bet!;
+    this.spinner.turnOn();
+    console.log('b', bet);
+    this.updateBidSubject.next({
+      ...bet,
+      amount: bet.amount,
+      chosenCompetitor: bet.awayUser ? bet.awayTeam : bet.homeTeam,
+      week: parseInt(bet.week),
+      createDate: bet.createDate,
+      div: bet.div,
+      user: bet.awayUser || bet.homeUser,
+    });
   }
 
   getPoints(): string {
@@ -105,11 +111,3 @@ export class CompetitorComponent implements OnInit {
     return `${this.team!.points}`;
   }
 }
-
-type Team = {
-  abbreviatedName: string;
-  name: string;
-  record: string;
-  totalAmount: number;
-  points: number;
-};

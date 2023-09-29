@@ -1,12 +1,39 @@
-<p-tabView *ngIf="view$ | async as view" header="Todays Bets">
-  <p-tabPanel header="Recent Bets">
-    <ng-container *ngFor="let bet of view.recentBets">
-      <app-bet [bet]="bet"> </app-bet>
+<div class="flex flex-row justify-content-center">
+  <div *ngIf="userService.betUser$ | async" class="flex flex-row md:w-8 lg:w-4">
+    <ng-container *ngIf="userService.leagueUsers$ | async as leagueUsers">
+      <div class="flex-1 flex flex-column b">
+        <div class="mt-2 flex flex-row justify-content-center">
+          <p-dropdown
+            [options]="weeks"
+            [ngModel]="selectedWeek"
+            (onChange)="changeSelectedWeek($event)"
+            optionLabel="name"
+          ></p-dropdown>
+        </div>
+        <div
+          *ngIf="betsByWeek$ | async as bets"
+          class="flex flex-row justify-content-center"
+        >
+          <div class="d flex-1 flex flex-row" *ngFor="let bet of bets">
+            <app-competitor
+              class="flex-1"
+              [bet]="bet"
+              [isFavorite]="true"
+              [leagueUsers]="leagueUsers"
+            >
+            </app-competitor>
+            <div class="flex flex-column justify-content-center">
+              {{ bet.amount }}
+            </div>
+            <app-competitor
+              class="flex-1"
+              [bet]="bet"
+              [leagueUsers]="leagueUsers"
+            >
+            </app-competitor>
+          </div>
+        </div>
+      </div>
     </ng-container>
-  </p-tabPanel>
-  <p-tabPanel header="My Bets">
-    <ng-container *ngFor="let bet of view.myBets">
-      <app-bet [bet]="bet"> </app-bet>
-    </ng-container>
-  </p-tabPanel>
-</p-tabView>
+  </div>
+</div>

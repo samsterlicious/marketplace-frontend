@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, map, mergeMap, tap } from 'rxjs';
 import { SpinnerService } from 'src/app/services/spinner/spinner.service';
 import { BetUser, UserService } from 'src/app/services/user/user.service';
 
@@ -9,17 +9,24 @@ import { BetUser, UserService } from 'src/app/services/user/user.service';
   styleUrls: ['./leaderboard.component.scss'],
 })
 export class LeaderboardComponent {
-  view$: Observable<BetUser[]>;
+  $users: Observable<BetUser[]>;
 
-  constructor(spinner: SpinnerService, userService: UserService) {
-    this.view$ = userService.getLeaderboard().pipe(
-      tap(() => spinner.turnOff()),
-      map((resp) => {
-        resp.sort((a, b) => {
-          return b.total - a.total;
-        });
-        return resp;
-      })
+  constructor(
+    private spinner: SpinnerService,
+    public userService: UserService
+  ) {
+    this.spinner.turnOn();
+
+    this.$users = this.userService.betUser$.pipe(
+      mergeMap((user) =>
+        this.userService.getLeaderboard(user!.league).pipe(
+          map((users) => {
+            users.sort((u1, u2) => u2.total - u1.total);
+            return users;
+          }),
+          tap(() => this.spinner.turnOff())
+        )
+      )
     );
   }
 }

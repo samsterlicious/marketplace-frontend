@@ -14,8 +14,12 @@ export class BetService {
     return this.httpClient.get<Bet[]>(this.baseUrl);
   }
 
-  getByDate(date: string) {
-    return this.httpClient.get<Bet[]>(`${this.baseUrl}/date/${date}`);
+  getByWeek(date: string, div: string) {
+    return this.httpClient.get<Bet[]>(`${this.baseUrl}/date/${date}`, {
+      params: {
+        div,
+      },
+    });
   }
 }
 
@@ -29,4 +33,9 @@ export type Bet = {
   spread: string;
   kind: string;
   date: Date;
+  homeAbbreviation: string;
+  awayAbbreviation: string;
+  createDate?: Date;
+  div: string;
+  week: string;
 };

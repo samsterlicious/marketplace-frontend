@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from '@auth0/auth0-angular';
-import { BetsComponent } from './components/bets/bets.component';
 import { HomeComponent } from './components/home/home.component';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
+import { MyBetsComponent } from './components/my-bets/my-bets.component';
 import { MyHistoryComponent } from './components/my-history/my-history.component';
 import { ProfileComponent } from './components/profile/profile.component';
 
@@ -14,7 +14,7 @@ const routes: Routes = [
     canActivate: [AuthGuard],
   },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-  { path: 'bets', component: BetsComponent, canActivate: [AuthGuard] },
+  { path: 'bets', component: MyBetsComponent, canActivate: [AuthGuard] },
   {
     path: 'leaderboard',
     component: LeaderboardComponent,

@@ -1,30 +1,39 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { MessageService } from 'primeng/api';
-import { Observable, ReplaySubject, mergeMap, tap } from 'rxjs';
+import { Component } from '@angular/core';
+import {
+  BehaviorSubject,
+  Observable,
+  ReplaySubject,
+  mergeMap,
+  tap,
+} from 'rxjs';
 import { Bet, BetService } from 'src/app/services/bet/bet.service';
 import { SpinnerService } from 'src/app/services/spinner/spinner.service';
 import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
-  selector: 'app-bets',
-  templateUrl: './bets.component.html',
-  styleUrls: ['./bets.component.scss'],
-  providers: [MessageService],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'app-my-bets',
+  templateUrl: './my-bets.component.html',
+  styleUrls: ['./my-bets.component.scss'],
 })
-export class BetsComponent {
-  weeks: Week[] = [];
-  selectedWeek: Week;
-  selectedWeekSubject: ReplaySubject<string>;
-  betsByWeek$: Observable<Bet[]>;
+export class MyBetsComponent {
+  bets$: Observable<Bet[]>;
+  reloadSubject = new BehaviorSubject<string>('initial');
+
   constructor(
-    private betService: BetService,
     public userService: UserService,
+    private betService: BetService,
     private spinner: SpinnerService
   ) {
-    for (let i = 2; i > 0; i--) {
-      this.weeks[2 - i] = { name: `Week ${i}`, code: `${i}` };
-    }
+    spinner.turnOn();
+    console.log('hissss');
+    this.bets$ = this.reloadSubject.asObservable().pipe(
+      tap((val) => console.log('new value', val)),
+      mergeMap(() => betService.getByUser()),
+      tap(() => {
+        spinner.turnOff();
+        console.log('hi');
+      })
+    );
 
     this.selectedWeek = this.weeks[0];
     this.selectedWeekSubject = new ReplaySubject<string>(1);
@@ -43,9 +52,20 @@ export class BetsComponent {
     this.selectedWeekSubject.next(this.weeks[0].code);
   }
 
+  reloadPage(bool: boolean) {
+    console.log('wassssup');
+    this.spinner.turnOn();
+    this.reloadSubject.next('reload');
+  }
+
   changeSelectedWeek(week: any) {
     this.selectedWeekSubject.next(week.value.code);
   }
+
+  weeks: Week[] = [];
+  selectedWeek: Week;
+  selectedWeekSubject: ReplaySubject<string>;
+  betsByWeek$: Observable<Bet[]>;
 }
 
 type Week = {

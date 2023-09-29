@@ -4,19 +4,22 @@ import { MessageService } from 'primeng/api';
 import {
   BehaviorSubject,
   Observable,
-  combineLatest,
+  Subject,
+  catchError,
   map,
   mergeMap,
+  of,
   tap,
 } from 'rxjs';
-import { BidService } from 'src/app/services/bid/bid.service';
-import { CartService } from 'src/app/services/cart/cart.service';
+import { Bid, BidService } from 'src/app/services/bid/bid.service';
+import { Cart, CartService } from 'src/app/services/cart/cart.service';
 import {
   MarketplaceEvent,
   MarketplaceMap,
   MarketplaceService,
 } from 'src/app/services/marketplace/marketplace.service';
 import { SpinnerService } from 'src/app/services/spinner/spinner.service';
+import { BetUser, UserService } from 'src/app/services/user/user.service';
 
 @Component({
   selector: 'app-home',
@@ -26,9 +29,12 @@ import { SpinnerService } from 'src/app/services/spinner/spinner.service';
   providers: [MessageService],
 })
 export class HomeComponent implements OnInit {
-  view$: Observable<HomeView>;
+  view$: Observable<MarketplaceMap>;
 
   message: any;
+
+  betUser$: Observable<BetUser[]>;
+  newUsername = '';
 
   showCart = new BehaviorSubject(false);
   showCart$ = this.showCart.asObservable();
@@ -38,60 +44,54 @@ export class HomeComponent implements OnInit {
   loadPage = new BehaviorSubject<string>('');
 
   constructor(
-    private cart: CartService,
+    public cartService: CartService,
     private bidService: BidService,
     private marketplaceService: MarketplaceService,
     private spinner: SpinnerService,
-    private router: Router,
-    private messageService: MessageService
+    public userService: UserService,
+    private messageService: MessageService,
+    private myRouter: Router
   ) {
-    this.cart$ = cart.cart$;
-    this.message = router.getCurrentNavigation()?.extras.state?.['message'];
+    this.betUser$ = userService.getBetUser$;
+
+    this.save$ = this.saveSubject.asObservable().pipe(
+      tap((name) => console.log(name)),
+      mergeMap((name) =>
+        this.userService
+          .updateName(this.userService.betUserSubject.value!.league, name)
+          .pipe(catchError(() => of('error')))
+      ),
+      tap((resp) => {
+        this.spinner.turnOff();
+        if (resp === 'error') {
+        } else {
+          userService.visible = false;
+          this.userService.leagueUsersSubject.next(
+            this.userService.betUserSubject.value!.league
+          );
+        }
+      })
+    );
+
+    this.cart$ = cartService.cart$;
     spinner.turnOn();
     this.view$ = this.loadPage.asObservable().pipe(
       mergeMap(() => {
-        return combineLatest({
-          myBids: this.bidService.getByUser().pipe(
-            map((bids) => {
-              let ret: {
-                [key: string]: { chosenCompetitor: string; amount: number };
-              } = {};
-              bids.forEach((bid) => {
-                let existingBid =
-                  ret[
-                    `${bid.kind}|${bid.date}|${bid.awayTeam}|${bid.homeTeam}`
-                  ];
-                if (existingBid) {
-                  existingBid.amount += bid.amount;
-                } else {
-                  ret[
-                    `${bid.kind}|${bid.date}|${bid.awayTeam}|${bid.homeTeam}`
-                  ] = {
-                    chosenCompetitor: bid.chosenCompetitor,
-                    amount: bid.amount,
-                  };
-                }
-              });
-              return ret;
-            })
-          ),
-          marketplaceMap: this.marketplaceService.get().pipe(
-            map((events) => {
-              if (events.length < 1) return {};
-              const map: MarketplaceMap = {};
-              events.forEach((event) => {
-                const existingKind = map[event.kind];
-                if (existingKind) {
-                  existingKind.push(event);
-                } else {
-                  map[event.kind] = [event];
-                }
-              });
-              return map;
-            }),
-            tap((m) => console.log('m', m))
-          ),
-        });
+        return this.marketplaceService.get().pipe(
+          map((events) => {
+            if (events.length < 1) return {};
+            const map: MarketplaceMap = {};
+            events.forEach((event) => {
+              const existingKind = map[event.kind];
+              if (existingKind) {
+                existingKind.push(event);
+              } else {
+                map[event.kind] = [event];
+              }
+            });
+            return map;
+          })
+        );
       }),
       tap(() => spinner.turnOff())
     );
@@ -109,27 +109,60 @@ export class HomeComponent implements OnInit {
     return map[`${kind}|${date}|${awayTeam}|${homeTeam}`];
   }
 
-  getCartKey(event: MarketplaceEvent, homeOrAway: string) {
-    return CartService.getKeyFromEvent(
-      event,
-      homeOrAway === 'home' ? event.homeTeam : event.awayTeam
-    );
+  getSelectedTeam(event: MarketplaceEvent, cart: Cart): string {
+    const item = cart[CartService.getKeyFromEvent(event)];
+    return item ? item.chosenTeam! : '';
   }
 
-  toggleCart(event: boolean) {
-    if (event) {
-      this.showCart.next(false);
-    } else {
-      this.showCart.next(true);
-    }
+  submit(cart: Cart) {
+    const bids: Bid[] = Object.entries(cart).map(([eventKey, cartItem]) => {
+      const event = cartItem.event!;
+      return {
+        amount: cartItem.amount!,
+        kind: event.kind,
+        awayTeam: event.awayTeam,
+        homeTeam: event.homeTeam,
+        chosenCompetitor: cartItem.chosenTeam!,
+        spread: event.spread,
+        date: event.date,
+        week: event.week,
+        awayAbbreviation: event.awayAbbreviation,
+        homeAbbreviation: event.homeAbbreviation,
+        div: this.userService.betUserSubject.value!.league,
+      };
+    });
+    this.spinner.turnOn();
+    this.bidService.create(bids).subscribe({
+      next: (betResponse) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `${Object.values(betResponse).length} bets created!`,
+        });
+        // this.reloadPage('success');
+        this.cartService.clear();
+        this.myRouter.navigate(['bets']);
+      },
+      error: (_err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'An issue occurred during submission. Please contact Keith',
+        });
+        this.spinner.turnOff();
+      },
+    });
+  }
+
+  saveSubject = new Subject<string>();
+  save$: Observable<string>;
+  save() {
+    this.userService.nameError = false;
+    this.spinner.turnOn();
+    this.saveSubject.next(this.newUsername);
   }
 
   reloadPage(event: string) {
     this.loadPage.next(event);
   }
 }
-
-type HomeView = {
-  myBids: { [key: string]: { chosenCompetitor: string; amount: number } };
-  marketplaceMap: MarketplaceMap | undefined;
-};

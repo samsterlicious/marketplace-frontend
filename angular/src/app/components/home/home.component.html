@@ -1,61 +1,54 @@
-<p-toast></p-toast>
+<p-toast position="top-center"></p-toast>
 <ng-container *ngIf="cart$ | async as cart">
   <ng-container *ngIf="view$ | async as view">
     <p class="mt-1"></p>
-    <p-accordion
-      *ngIf="view.marketplaceMap"
-      [multiple]="true"
-      [activeIndex]="[0]"
-    >
-      <p-accordionTab
-        class="text-sm md:text-base"
-        [header]="kind.key"
-        *ngFor="let kind of view.marketplaceMap | keyvalue"
-        [contentStyle]="{
-          padding: '0px',
-          display: 'flex',
-          justifyContent: 'center'
-        }"
-      >
-        <div class="flex flex-column md:w-9 lg:w-6">
-          <div class="flex flex-column flex-1 justify-content-center greg">
-            <ng-container *ngFor="let event of kind.value">
-              <app-event
-                [event]="event"
-                class="flex-1 flex flex-row"
-                [awaySelected]="!!cart[getCartKey(event, 'away')]"
-                [homeSelected]="!!cart[getCartKey(event, 'home')]"
-                [bid]="
-                  getBid(
-                    view.myBids,
-                    kind.key,
-                    event.date,
-                    event.awayTeam,
-                    event.homeTeam
-                  )
-                "
-              ></app-event>
-            </ng-container>
-          </div>
-        </div>
-      </p-accordionTab>
-    </p-accordion>
+    <div *ngIf="view" class="flex flex-row justify-content-center">
+      <div class="md:w-8 lg:w-6 flex flex-column flex-1 md:flex-none">
+        <p-accordion [activeIndex]="0">
+          <p-accordionTab
+            [contentStyle]="{ padding: '0px' }"
+            [header]="kind.key"
+            *ngFor="let kind of view | keyvalue"
+          >
+            <div class="break"></div>
+            <div class="flex-1 flex flex-column">
+              <div class="flex flex-column flex-1 justify-content-center greg">
+                <ng-container *ngFor="let event of kind.value">
+                  <app-event
+                    [event]="event"
+                    class="flex-1 flex flex-row"
+                    [cartItem]="cart[cartService.getKeyFromEvent(event)]"
+                  ></app-event>
+                </ng-container>
+              </div>
+            </div>
+          </p-accordionTab>
+        </p-accordion>
+      </div>
+    </div>
     <p-button
-      class="bottom-0 left-100 sticky p-1"
+      class="bottom-0 left-100 sticky p-5"
       pRipple
       iconPos="right"
       styleClass="p-button-lg p-button-rounded  p-button-raised "
-      icon="pi pi-shopping-cart"
-      label="Cart"
-      (click)="toggleCart(false)"
+      label="Submit"
+      (click)="submit(cart)"
     ></p-button>
-
-    <app-cart
-      (hideEmitter)="toggleCart($event)"
-      *ngIf="showCart$ | async as show"
-      [show]="show"
-      [cart]="cart"
-      (reload)="reloadPage($event)"
-    ></app-cart>
   </ng-container>
 </ng-container>
+<ng-container *ngIf="betUser$ | async"></ng-container>
+<p-dialog header="User name" [(visible)]="userService.visible">
+  <div class="flex flex-column text-center">
+    You need to set up your username for this league
+  </div>
+  <div class="flex flex-column mt-3">
+    <div class="flex flex-row justify-content-center">
+      <input pInputText [(ngModel)]="newUsername" />
+      <button pButton type="button" label="Save" (click)="save()"></button>
+    </div>
+    <div *ngIf="userService.nameError" class="text-center mt-3">
+      Username already exists
+    </div>
+  </div>
+  <ng-container *ngIf="save$ | async"> </ng-container>
+</p-dialog>

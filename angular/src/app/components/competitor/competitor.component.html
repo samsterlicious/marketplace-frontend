@@ -1,47 +1,127 @@
 <div
-  class="md:hidden flex flex-row competitor p-3 m-1"
+  class="md:hidden flex flex-row competitor p-2 m-1 flex-wrap border-round-sm surface-200 border-400 border-1"
   (click)="select()"
-  [class.selected]="selected"
-  [class.selectDisabled]="selectDisabled"
+  [class.selected]="cartItem?.chosenTeam === team.name"
   *ngIf="team"
 >
-  <div>
-    <img class="nameLogo" [src]="getLogo(team.name)" />
+  <div class="flex flex-row justify-content-center">
+    <img class="nameLogoSmall" [src]="getLogo(team.name)" alt="logo" />
   </div>
-  <div class="flex flex-1 flex-column ml-2">
-    <div class="font-bold">
-      {{ team.abbreviatedName }}
+  <div class="flex-1 justify-content-center flex flex-row">
+    <div class="flex flex-column ml-2">
+      <div class="font-bold">
+        {{ team.name == (event?.awayTeam || bet?.awayTeam) ? "" : "@" }}
+        {{ team.abbreviatedName }}
+      </div>
+      <div *ngIf="event">({{ team.record }})</div>
     </div>
-    <div>({{ team.record }})</div>
-    <div>
-      {{ team.name == event.awayTeam ? "Away" : "Home" }}
+  </div>
+  <div class="flex flex-column justify-content-center">
+    <div class="font-bold">{{ getPoints() }}</div>
+  </div>
+  <ng-container *ngIf="bet && leagueUsers">
+    <div class="break"></div>
+    <div class="flex-1 text-center" *ngIf="bet.status != 'BAD'; else BAD_BET">
+      {{
+        team.name === bet.awayTeam
+          ? leagueUsers[bet.awayUser].name
+          : leagueUsers[bet.homeUser].name
+      }}
     </div>
-  </div>
-  <div class="flex flex-column font-bold justify-content-center">
-    <div class="text-right">{{ getPoints() }}</div>
-  </div>
+    <ng-template #BAD_BET>
+      <div class="flex-1 text-center">
+        {{ team.user ? leagueUsers[team.user].name : "Nobody Yet" }}
+      </div>
+      <p-button
+        *ngIf="team.user"
+        pRipple
+        styleClass="p-button-rounded p-button-text"
+        class="absolute right-0"
+        icon="pi pi-trash"
+        (click)="deleteBid()"
+      ></p-button>
+    </ng-template>
+  </ng-container>
 </div>
+
 <div
-  class="hidden md:flex flex-row competitor p-3 m-1"
+  class="hidden md:flex flex-row competitor p-3 m-1 flex-wrap"
   (click)="select()"
-  [class.selected]="selected"
-  [class.selectDisabled]="selectDisabled"
+  [class.selected]="cartItem?.chosenTeam === team.name"
   *ngIf="team"
 >
   <div>
-    <img class="nameLogo" [src]="getLogo(team.name)" />
+    <img class="nameLogo" [src]="getLogo(team.name)" alt="logo" />
   </div>
   <div class="flex flex-1 flex-column ml-2">
     <div class="flex flex-row">
       <div class="font-bold">{{ team.name }}</div>
-      <div>({{ team.record }})</div>
+      <div *ngIf="event">({{ team.record }})</div>
     </div>
     <div>
-      {{ team.name == event.awayTeam ? "Away" : "Home" }}
+      {{ team.name == (event?.awayTeam ?? bet?.awayTeam) ? "Away" : "Home" }}
     </div>
   </div>
   <div class="flex flex-column font-bold justify-content-center">
     <div class="text-right">{{ getPoints() }}</div>
   </div>
+  <ng-container *ngIf="bet && leagueUsers">
+    <div class="break"></div>
+    <div class="flex-1 text-center" *ngIf="bet.status != 'BAD'; else BAD_BET">
+      {{
+        team.name === bet.awayTeam
+          ? leagueUsers[bet.awayUser].name
+          : leagueUsers[bet.homeUser].name
+      }}
+    </div>
+    <ng-template #BAD_BET>
+      <div class="flex-1 flex flex-column md:flex-row">
+        <div class="text-center flex-1">
+          {{ team.user ? leagueUsers[team.user].name : "Nobody Yet" }}
+        </div>
+        <p-button
+          *ngIf="team.user"
+          pRipple
+          styleClass="p-button-sm p-button-rounded  p-button-raised "
+          label="Delete"
+          (click)="deleteBid()"
+        ></p-button>
+      </div>
+    </ng-template>
+  </ng-container>
+</div>
+<div
+  class="p-inputgroup"
+  *ngIf="cartItem?.chosenTeam === team?.name && team?.name"
+>
+  <span class="p-inputgroup-addon">$</span>
+  <input
+    type="number"
+    pInputText
+    [ngModel]="cartItem!.amount"
+    (ngModelChange)="handleBetChange($event)"
+    placeholder="Amount"
+    [min]="0"
+    [max]="100"
+  />
 </div>
 <p-confirmDialog></p-confirmDialog>
+<p-dialog
+  header="User name"
+  [(visible)]="editFlag"
+  *ngIf="bet?.status === 'BAD' && team?.user"
+>
+  <div class="flex flex-column text-center">
+    Edit the amount for this potential bet
+  </div>
+  <div class="flex flex-row mt-3 justify-content-center">
+    <input pInputText [(ngModel)]="updateAmount" />
+    <p-button
+      pRipple
+      styleClass="p-button-sm p-button-rounded  p-button-raised "
+      label="Delete"
+      (click)="deleteBid()"
+    ></p-button>
+  </div>
+  <ng-container *ngIf="save$ | async"> </ng-container>
+</p-dialog>

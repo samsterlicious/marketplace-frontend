@@ -1,24 +1,28 @@
-<div class="mb-2 mt-2 flex-1">
+<div class="mb-2 mt-2 flex-1 text-xs md:text-base">
   <div class="event relative flex flex-column">
     <div class="flex-1 text-center">
       {{ event.date | date : "short" }}
     </div>
     <div class="flex flex-1 flex-row">
+      <div class="flex flex-column justify-content-center font-bold">
+        {{ favAmount }}
+      </div>
       <app-competitor
         [event]="event"
         [isFavorite]="true"
-        class="flex-1"
-        [selectDisabled]="getMyAmount(event.homeTeam) > 0"
-        [selected]="awaySelected"
+        class="flex-1 flex flex-column"
+        [cartItem]="cartItem"
       >
       </app-competitor>
       <app-competitor
         [event]="event"
-        class="flex-1"
-        [selectDisabled]="getMyAmount(event.awayTeam) > 0"
-        [selected]="homeSelected"
+        class="flex-1 flex flex-column"
+        [cartItem]="cartItem"
       >
       </app-competitor>
+      <div class="flex flex-column justify-content-center font-bold">
+        {{ dogAmount }}
+      </div>
     </div>
   </div>
 </div>

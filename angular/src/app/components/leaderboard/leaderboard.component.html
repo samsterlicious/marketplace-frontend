@@ -1,16 +1,18 @@
-<ng-container *ngIf="view$ | async as view">
-  <p-table [value]="view" [tableStyle]="{}">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>User</th>
-        <th>Total</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-user>
-      <tr>
-        <td>{{ user.email }}</td>
-        <td>{{ user.total }}</td>
-      </tr>
-    </ng-template>
-  </p-table>
+<ng-container *ngIf="userService.betUserSubject.value">
+  <ng-container *ngIf="$users | async as view">
+    <p-table [value]="view">
+      <ng-template pTemplate="header">
+        <tr>
+          <th id="user">User</th>
+          <th id="total">Total</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>{{ user.email }}</td>
+          <td>{{ user.total }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-container>
 </ng-container>
